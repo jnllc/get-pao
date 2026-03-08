@@ -132,51 +132,15 @@
     text-transform: lowercase;
   }
 
-  /* Verb scrolling window — width set by JS to widest word */
+  /* Verb window — single swapping word */
   .verb-window {
-    height: 1.28em;
-    overflow-y: hidden;
-    overflow-x: visible;
-    position: relative;
     text-align: right;
     padding: 0 0.16em 0 0.12em;
   }
 
-  .verb-scroller {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
   .verb-item {
-    height: 1.28em;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-shrink: 0;
     color: var(--accent);
     white-space: nowrap;
-    line-height: 1.2;
-  }
-
-  /* Top/bottom fade on verb window */
-  .verb-window::before,
-  .verb-window::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0;
-    height: 0.2em;
-    z-index: 2;
-    pointer-events: none;
-  }
-  .verb-window::before {
-    top: 0;
-    background: linear-gradient(to bottom, var(--bg), transparent);
-  }
-  .verb-window::after {
-    bottom: 0;
-    background: linear-gradient(to top, var(--bg), transparent);
   }
 
   /* Thin divider between verb and pao */
@@ -416,13 +380,7 @@
     .btn-primary, .btn-ghost { width: 100%; text-align: center; }
   }
 
-  /* Desktop-only: extend left backstage to prevent clipping */
-  @media (min-width: 1000px) {
-    .phrase-row {
-      padding-left: 1000px;
-      margin-left: -1000px;
-    }
-  }
+
 </style>
 </head>
 <body>
@@ -447,18 +405,7 @@
 
   <div class="phrase-row">
     <div class="verb-window" id="verbWindow">
-      <div class="verb-scroller" id="verbScroller">
-        <div class="verb-item">create</div>
-        <div class="verb-item">test</div>
-        <div class="verb-item">deploy</div>
-        <div class="verb-item">route</div>
-        <div class="verb-item">build</div>
-        <div class="verb-item">chain</div>
-        <div class="verb-item">review</div>
-        <div class="verb-item">ship</div>
-        <div class="verb-item">scale</div>
-        <div class="verb-item">fuse</div>
-      </div>
+      <span class="verb-item" id="verbLabel">create</span>
     </div>
     <div class="phrase-divider"></div>
     <div class="pao-static">pao</div>
@@ -565,51 +512,14 @@
 </footer>
 
 <script>
-  const win = document.getElementById('verbWindow');
-  const scroller = document.getElementById('verbScroller');
-  const items = Array.from(scroller.children);
-  const totalReal = items.length - 1;
+  const verbs = ['create','test','deploy','route','build','chain','review','ship','scale','fuse'];
+  const label = document.getElementById('verbLabel');
   let current = 0;
 
-  // Size the window to the widest verb so nothing ever clips
-  function sizeWindow() {
-    // Temporarily remove width constraint to measure natural sizes
-    win.style.width = 'auto';
-    let maxW = 0;
-    items.forEach(item => {
-      maxW = Math.max(maxW, item.scrollWidth);
-    });
-    // Add some breathing room
-    win.style.width = (maxW + 36) + 'px';
-  }
-
-  function goTo(index) {
-    const h = items[0].offsetHeight;
-    scroller.style.transform = `translateY(${-index * h}px)`;
-  }
-
-  sizeWindow();
-  goTo(0);
-
   setInterval(() => {
-    current++;
-    if (current >= totalReal) {
-      scroller.style.transition = 'none';
-      current = 0;
-      goTo(0);
-      scroller.offsetHeight;
-      scroller.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
-    } else {
-      scroller.style.transition = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
-      goTo(current);
-    }
+    current = (current + 1) % verbs.length;
+    label.textContent = verbs[current];
   }, 1800);
-
-  window.addEventListener('resize', () => {
-    sizeWindow();
-    scroller.style.transition = 'none';
-    goTo(current);
-  });
 </script>
 
 </body>
